@@ -8,6 +8,8 @@ from nonnegfac.nmf import NMF_MU
 from nonnegfac.nmf import NMF_RANK2
 from nonnegfac.nmf import Hier8_net
 import time
+import numpy as np 
+from scipy import sparse
 
 if __name__ == '__main__':
     W_org = random.rand(300, 10)
@@ -35,17 +37,42 @@ if __name__ == '__main__':
     start_time2 = time.time()
 
     print ('\nTesting NMF_RANK2....\n')
-    W, H, info = NMF_RANK2().run(A, 2, max_iter=1000)
+    # W, H, info = NMF_RANK2().run(A, 2, max_iter=1000)
 
-    elaped_time2 = time.time() - start_time2
-    print (elaped_time2)
+    # elaped_time2 = time.time() - start_time2
+    # print (elaped_time2)
 
+    voca_file = open('nonnegfac/tmp1/vocabulary.txt', 'r', encoding = 'UTF8')
 
+    # for line in voca_file:
+    #     print(line)
 
+    #tdm_file = open('nonnegfac/tmp1/tmp.mtx', 'r', encoding = 'UTF8')
+    tdm = []
+    with open('nonnegfac/tmp1/tmp.mtx', 'r', encoding = 'UTF8') as f:
+        lines = f.readlines()
+        for line in lines:
+            v = line[:-1].split()
+            item = np.array([float(v[0]), float(v[1]), float(v[2])], dtype=np.double)
+            tdm =np.append(tdm, item, axis=0)
+    tdm = np.array(tdm, dtype=np.double).reshape(len(lines), 3)
 
+    # print(np.shape(tdm[:,0]))
+    # print(np.shape(tdm[:,0].max(0)))
+    # print(tdm[:,0].max(0))
+    # print(tdm[:,1].max(0))
 
-    print ('\nTesting NMF_Hier8....\n')
+    A = sparse.csr_matrix((tdm[:,2], (tdm[:,0], tdm[:,1])), shape=(int(tdm[:,0].max(0)+1), int(tdm[:,1].max(0)+1)))
+    #A = sparse.csr_matrix((tdm[:,0], (tdm[:,1], tdm[:,2])), shape= (5000,500))
+    #W, H, info = NMF_RANK2().run(A,2,max_iter=500)
     W, H, info = Hier8_net().hier8_net(A, 4)
+
+
+
+
+
+    # print ('\nTesting NMF_Hier8....\n')
+    # W, H, info = Hier8_net().hier8_net(A, 4)
 
 
 
